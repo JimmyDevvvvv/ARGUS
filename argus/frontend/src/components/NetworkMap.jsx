@@ -233,8 +233,12 @@ export default function NetworkMap({ sectors, attackPaths, dataSource }) {
       sectorDetail.style('opacity', hostOp)
     }
 
+    // #map is position:fixed; inset:0 — always equals the viewport.
+    // Use window.innerWidth/Height directly so fitView is correct
+    // even on the first call before the browser resolves layout.
     function fitView() {
-      const vw = svgEl.clientWidth, vh = svgEl.clientHeight
+      const vw = window.innerWidth
+      const vh = window.innerHeight
       const s = Math.min(vw / WORLD.w, vh / WORLD.h) * 0.92
       const tx = (vw - WORLD.w * s) / 2 - WORLD.x * s
       const ty = (vh - WORLD.h * s) / 2 - WORLD.y * s
@@ -242,7 +246,8 @@ export default function NetworkMap({ sectors, attackPaths, dataSource }) {
     }
 
     function zoomToSector(d) {
-      const vw = svgEl.clientWidth, vh = svgEl.clientHeight
+      const vw = window.innerWidth
+      const vh = window.innerHeight
       const k = 2.4
       const cx = d.x + d.w / 2, cy = d.y + d.h / 2
       const t = d3.zoomIdentity.translate(vw / 2, vh / 2).scale(k).translate(-cx, -cy)
@@ -280,7 +285,7 @@ export default function NetworkMap({ sectors, attackPaths, dataSource }) {
       .attr('stroke', 'var(--phosphor)').attr('stroke-width', 1)
 
     function updateMinimapViewport(t) {
-      const vw = svgEl.clientWidth, vh = svgEl.clientHeight
+      const vw = window.innerWidth, vh = window.innerHeight
       const x0 = -t.x / t.k, y0 = -t.y / t.k, w0 = vw / t.k, h0 = vh / t.k
       mmViewport
         .attr('x', mmOx + (x0 - WORLD.x) * mmScale)
@@ -294,19 +299,20 @@ export default function NetworkMap({ sectors, attackPaths, dataSource }) {
       const scaleX = mmSvg.node().clientWidth / 170
       const wx = WORLD.x + (mx / scaleX - mmOx) / mmScale
       const wy = WORLD.y + (my / scaleX - mmOy) / mmScale
-      const vw = svgEl.clientWidth, vh = svgEl.clientHeight
+      const vw = window.innerWidth, vh = window.innerHeight
       const cur = d3.zoomTransform(svgEl)
       const t = d3.zoomIdentity.translate(vw / 2, vh / 2).scale(cur.k).translate(-wx, -wy)
       svg.transition().duration(500).call(zoom.transform, t)
     })
 
     // ---- initial view + resize ----
+    // #map is position:fixed; inset:0 so window.innerWidth/Height always match
+    // the SVG dimensions — no layout-pass timing issues.
     fitView()
-    const onResize = () => fitView()
-    window.addEventListener('resize', onResize)
+    window.addEventListener('resize', fitView)
 
     return () => {
-      window.removeEventListener('resize', onResize)
+      window.removeEventListener('resize', fitView)
       svg.on('.zoom', null)
     }
   }, [sectors, attackPaths])
