@@ -278,7 +278,7 @@ export default function NetworkMap({ sectors, attackPaths, dataSource }) {
       .attr('y', (d) => mmOy + (d.y - WORLD.y) * mmScale)
       .attr('width', (d) => d.w * mmScale)
       .attr('height', (d) => d.h * mmScale)
-      .attr('fill', 'rgba(168,224,99,.05)').attr('stroke', 'var(--phosphor-dim)').attr('stroke-width', 1)
+      .attr('fill', 'rgba(0,180,255,.05)').attr('stroke', 'var(--phosphor-dim)').attr('stroke-width', 1)
 
     const mmViewport = mmSvg.append('rect')
       .attr('fill', 'var(--phosphor)').attr('fill-opacity', 0.12)
@@ -353,7 +353,6 @@ export default function NetworkMap({ sectors, attackPaths, dataSource }) {
       </div>
 
       <svg id="map" ref={svgRef}></svg>
-      <div className="radar-sweep"></div>
 
       <div className="hud-panel breadcrumb">
         VIEW: <b>{breadcrumb}</b>
